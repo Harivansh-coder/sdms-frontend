@@ -7,7 +7,6 @@ import {
   Package,
   Users,
   ClipboardList,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -37,11 +36,6 @@ const navItems = [
     title: "Assignments",
     href: "/assignments",
     icon: ClipboardList,
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
   },
 ];
 
@@ -136,7 +130,7 @@ export function Sidebar() {
         <div className="flex h-16 items-center justify-between border-b px-6">
           <Link to="/" className="flex items-center gap-2 font-bold text-xl">
             <Package className="h-6 w-6" />
-            <span>DeliveryOS</span>
+            <span>SDMS</span>
           </Link>
 
           {/* Desktop toggle button (inside sidebar) */}

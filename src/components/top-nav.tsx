@@ -1,4 +1,4 @@
-import { Bell, Search, User, Menu } from "lucide-react";
+import { Bell, User, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { useSidebar } from "@/components/sidebar";
 
 export function TopNav() {
@@ -21,14 +20,14 @@ export function TopNav() {
         <span className="sr-only">Toggle Sidebar</span>
       </Button>
 
-      <div className="relative hidden md:flex w-full max-w-sm items-center">
+      {/* <div className="relative hidden md:flex w-full max-w-sm items-center">
         <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Search..."
           className="w-full rounded-lg pl-8 md:w-[300px] lg:w-[400px]"
         />
-      </div>
+      </div> */}
       <div className="ml-auto flex items-center gap-4">
         <Button variant="outline" size="icon" className="relative">
           <Bell className="h-4 w-4" />

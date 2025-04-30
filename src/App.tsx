@@ -1,32 +1,77 @@
-import { Routes, Route } from "react-router-dom";
-import { Sidebar } from "./components/sidebar";
-import { TopNav } from "./components/top-nav";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import LoginPage from "./pages/login";
+import RegisterPage from "./pages/register";
 import Dashboard from "./pages/dashboard";
 import PartnersPage from "./pages/partners";
 import OrdersPage from "./pages/orders";
 import AssignmentsPage from "./pages/assignments";
-import LoginPage from "./pages/login";
-import RegisterPage from "./pages/register";
+import Layout from "./pages/home"; // formerly Home, now acts as layout
+import { isAuthenticated } from "@/utils/lib";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-function App() {
-  return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <TopNav />
-        <main className="flex-1 p-4 md:p-6">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/partners" element={<PartnersPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/assignments" element={<AssignmentsPage />} />
-            <Route path="/auth/login" element={<LoginPage />} />
-            <Route path="/auth/register" element={<RegisterPage />} />
-          </Routes>
-        </main>
-      </div>
-    </div>
-  );
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem("token");
+
+  if (!token || !isAuthenticated(token)) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
 }
 
-export default App;
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem("token");
+  if (token && isAuthenticated(token)) {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+}
+
+const queryClient = new QueryClient();
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            }
+          />
+
+          {/* Protected routes */}
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Layout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="partners" element={<PartnersPage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="assignments" element={<AssignmentsPage />} />
+          </Route>
+        </Routes>
+      </Router>
+    </QueryClientProvider>
+  );
+}

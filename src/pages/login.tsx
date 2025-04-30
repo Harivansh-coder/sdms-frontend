@@ -88,12 +88,12 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link
-                  to="/auth/forgot-password"
+                {/* <Link
+                  to="/forgot-password"
                   className="text-xs text-muted-foreground hover:text-primary"
                 >
                   Forgot password?
-                </Link>
+                </Link> */}
               </div>
               <Input
                 id="password"
@@ -105,14 +105,14 @@ export default function LoginPage() {
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+          <CardFooter className="flex flex-col space-y-5">
+            <Button type="submit" className="w-full mt-5" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
             <div className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link
-                to="/auth/register"
+                to="/register"
                 className="font-medium text-primary hover:underline"
               >
                 Sign up

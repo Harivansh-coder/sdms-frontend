@@ -14,13 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
@@ -30,16 +23,11 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "partner",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleRoleChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, role: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,27 +131,15 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select value={formData.role} onValueChange={handleRoleChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="partner">Delivery Partner</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 mt-5">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create account"}
             </Button>
             <div className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link
-                to="/auth/login"
+                to="/login"
                 className="font-medium text-primary hover:underline"
               >
                 Sign in
