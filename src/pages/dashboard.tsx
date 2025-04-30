@@ -3,13 +3,13 @@ import { Users, Package, CheckCircle, MapPin, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/metric-card";
 import { StatusBadge } from "@/components/status-badge";
-import { CardSkeleton } from "@/components/ui/skeleton-loader";
+import { CardSkeleton } from "@/components/ui/skeleton";
 import {
   mockPartners,
   mockOrders,
   mockAssignments,
   mockPartnerAvailability,
-} from "@/mock-data";
+} from "@/utils/mock_data";
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);

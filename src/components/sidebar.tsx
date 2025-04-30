@@ -1,8 +1,7 @@
 import type React from "react";
 
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { useState, useEffect, createContext, useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   BarChart3,
   Package,
@@ -46,9 +45,6 @@ const navItems = [
   },
 ];
 
-// Create a context to share sidebar state across components
-import { createContext, useContext } from "react";
-
 type SidebarContextType = {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
@@ -90,7 +86,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function Sidebar() {
-  const pathname = usePathname();
+  const location = useLocation();
   const { isOpen, toggleSidebar } = useSidebar();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -138,7 +134,7 @@ export function Sidebar() {
         )}
       >
         <div className="flex h-16 items-center justify-between border-b px-6">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+          <Link to="/" className="flex items-center gap-2 font-bold text-xl">
             <Package className="h-6 w-6" />
             <span>DeliveryOS</span>
           </Link>
@@ -159,10 +155,10 @@ export function Sidebar() {
           {navItems.map((item) => (
             <Link
               key={item.href}
-              href={item.href}
+              to={item.href}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                pathname === item.href
+                location.pathname === item.href
                   ? "bg-primary text-primary-foreground"
                   : "hover:bg-muted"
               )}

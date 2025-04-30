@@ -1,7 +1,7 @@
 import type React from "react";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,6 @@ export default function RegisterPage() {
     confirmPassword: "",
     role: "partner",
   });
-  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -47,10 +46,8 @@ export default function RegisterPage() {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Passwords do not match",
+      toast("Passwords do not match", {
         description: "Please make sure your passwords match.",
-        variant: "destructive",
       });
       return;
     }
@@ -68,19 +65,17 @@ export default function RegisterPage() {
       //   body: JSON.stringify(formData)
       // })
 
-      toast({
-        title: "Registration successful",
+      toast("Registration successful", {
         description: "Your account has been created. Please sign in.",
       });
 
       // Redirect to login after successful registration
       // router.push('/auth/login')
     } catch (error) {
-      toast({
-        title: "Registration failed",
+      console.error("Registration error:", error);
+      toast("Registration failed", {
         description:
           "There was an error creating your account. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -168,7 +163,7 @@ export default function RegisterPage() {
             <div className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link
-                href="/auth/login"
+                to="/auth/login"
                 className="font-medium text-primary hover:underline"
               >
                 Sign in

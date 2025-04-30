@@ -15,13 +15,8 @@ export function TopNav() {
   const { toggleSidebar } = useSidebar();
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={toggleSidebar}
-        className="md:hidden"
-      >
+    <header className="sticky top-0 z-40 flex h-16 items-center border-b bg-background px-4 shadow-sm md:px-6 lg:px-8">
+      <Button variant="ghost" size="icon" onClick={toggleSidebar}>
         <Menu className="h-4 w-4" />
         <span className="sr-only">Toggle Sidebar</span>
       </Button>

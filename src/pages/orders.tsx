@@ -19,9 +19,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/status-badge";
-import { TableSkeleton } from "@/components/ui/skeleton-loader";
-import { mockOrders } from "@/mock-data";
-import type { Order } from "@/types";
+import { TableSkeleton } from "@/components/ui/skeleton";
+import { mockOrders } from "@/utils/mock_data";
+import type { Order } from "@/utils/types";
 
 export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true);

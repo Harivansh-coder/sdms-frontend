@@ -1,7 +1,7 @@
 import type React from "react";
 
 import { useState } from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +22,6 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
-  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -44,18 +43,16 @@ export default function LoginPage() {
       //   body: JSON.stringify(formData)
       // })
 
-      toast({
-        title: "Login successful",
+      toast("Login successful", {
         description: "Redirecting to dashboard...",
       });
 
       // Redirect to dashboard after successful login
       // router.push('/')
     } catch (error) {
-      toast({
-        title: "Login failed",
+      console.error("Login error:", error);
+      toast("Login failed", {
         description: "Please check your credentials and try again.",
-        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -92,7 +89,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
                 <Link
-                  href="/auth/forgot-password"
+                  to="/auth/forgot-password"
                   className="text-xs text-muted-foreground hover:text-primary"
                 >
                   Forgot password?
@@ -115,7 +112,7 @@ export default function LoginPage() {
             <div className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
               <Link
-                href="/auth/register"
+                to="/auth/register"
                 className="font-medium text-primary hover:underline"
               >
                 Sign up

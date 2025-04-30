@@ -20,9 +20,9 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/status-badge";
 import { MetricCard } from "@/components/metric-card";
-import { CardSkeleton, TableSkeleton } from "@/components/ui/skeleton-loader";
-import { mockPartners, mockPartnersMetrics } from "@/mock-data";
-import type { DeliveryPartner } from "@/types";
+import { CardSkeleton, TableSkeleton } from "@/components/ui/skeleton";
+import { mockPartners, mockPartnersMetrics } from "@/utils/mock_data";
+import type { DeliveryPartner } from "@/utils/types";
 
 export default function PartnersPage() {
   const [isLoading, setIsLoading] = useState(true);

@@ -3,7 +3,7 @@ import { Users, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/metric-card";
 import { StatusBadge } from "@/components/status-badge";
-import { CardSkeleton, TableSkeleton } from "@/components/ui/skeleton-loader";
+import { CardSkeleton, TableSkeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -16,11 +16,23 @@ import {
   mockAssignments,
   mockAssignmentMetrics,
   mockPartnerAvailability,
-} from "@/mock-data";
-import { ChartContainer, BarChart, LineChart } from "@/components/ui/chart";
+} from "@/utils/mock_data";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { Bar, BarChart } from "recharts";
 
 export default function AssignmentsPage() {
   const [isLoading, setIsLoading] = useState(true);
+
+  const ChartConfig = {
+    desktop: {
+      label: "Desktop",
+      color: "#2563eb",
+    },
+    mobile: {
+      label: "Mobile",
+      color: "#60a5fa",
+    },
+  } satisfies ChartConfig;
 
   useEffect(() => {
     // Simulate API loading
@@ -59,20 +71,29 @@ export default function AssignmentsPage() {
   }
 
   // Format data for charts
-  const failureData = mockAssignmentMetrics.failureReasons.map((item) => ({
-    name: item.reason,
-    value: item.count,
-  }));
+  // const failureData = mockAssignmentMetrics.failureReasons.map((item) => ({
+  //   name: item.reason,
+  //   value: item.count,
+  // }));
 
   // Line chart data for assignment trends (mock data)
-  const assignmentTrends = [
-    { name: "Mon", assignments: 24 },
-    { name: "Tue", assignments: 32 },
-    { name: "Wed", assignments: 28 },
-    { name: "Thu", assignments: 36 },
-    { name: "Fri", assignments: 42 },
-    { name: "Sat", assignments: 38 },
-    { name: "Sun", assignments: 30 },
+  // const assignmentTrends = [
+  //   { name: "Mon", assignments: 24 },
+  //   { name: "Tue", assignments: 32 },
+  //   { name: "Wed", assignments: 28 },
+  //   { name: "Thu", assignments: 36 },
+  //   { name: "Fri", assignments: 42 },
+  //   { name: "Sat", assignments: 38 },
+  //   { name: "Sun", assignments: 30 },
+  // ];
+
+  const chartData = [
+    { month: "January", desktop: 186, mobile: 80 },
+    { month: "February", desktop: 305, mobile: 200 },
+    { month: "March", desktop: 237, mobile: 120 },
+    { month: "April", desktop: 73, mobile: 190 },
+    { month: "May", desktop: 209, mobile: 130 },
+    { month: "June", desktop: 214, mobile: 140 },
   ];
 
   return (
@@ -135,8 +156,20 @@ export default function AssignmentsPage() {
             </div>
 
             <div className="h-[200px]">
-              <ChartContainer>
-                <LineChart
+              <ChartContainer
+                className="h-full"
+                config={ChartConfig}
+                title="Assignment Trends"
+              >
+                <BarChart accessibilityLayer data={chartData}>
+                  <Bar
+                    dataKey="desktop"
+                    fill="var(--color-desktop)"
+                    radius={4}
+                  />
+                  <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                </BarChart>
+                {/* <LineChart
                   data={assignmentTrends}
                   index="name"
                   categories={["assignments"]}
@@ -146,7 +179,7 @@ export default function AssignmentsPage() {
                   showXAxis
                   showYAxis
                   showGridLines
-                />
+                /> */}
               </ChartContainer>
             </div>
           </CardContent>
@@ -158,8 +191,12 @@ export default function AssignmentsPage() {
           </CardHeader>
           <CardContent>
             <div className="h-[280px]">
-              <ChartContainer>
-                <BarChart
+              <ChartContainer
+                className="h-full"
+                config={ChartConfig}
+                title="Failure Reasons"
+              >
+                {/* <BarChart
                   data={failureData}
                   index="name"
                   categories={["value"]}
@@ -169,7 +206,15 @@ export default function AssignmentsPage() {
                   showXAxis
                   showYAxis
                   showGridLines
-                />
+                /> */}
+                <BarChart accessibilityLayer data={chartData}>
+                  <Bar
+                    dataKey="desktop"
+                    fill="var(--color-desktop)"
+                    radius={4}
+                  />
+                  <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                </BarChart>
               </ChartContainer>
             </div>
           </CardContent>
