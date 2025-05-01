@@ -13,8 +13,8 @@ import { useState } from "react";
 
 export function TopNav() {
   const { toggleSidebar } = useSidebar();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const [, setProfileModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center border-b bg-background px-4 shadow-sm md:px-6 lg:px-8">

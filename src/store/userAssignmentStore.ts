@@ -11,12 +11,7 @@ interface UserAssignmentState {
 
   // Actions
   fetchAssignments: () => Promise<void>;
-  // addAssignment: (assignment: Omit<Assignment, "id">) => Promise<void>;
-  // updateAssignment: (
-  //   id: string,
-  //   assignment: Partial<Assignment>
-  // ) => Promise<void>;
-  // deleteAssignment: (id: string) => Promise<void>;
+
   getAssignment: (id: string) => Promise<void>;
   setSelectedAssignment: (assignment: Assignment | null) => void;
 }
@@ -24,8 +19,7 @@ interface UserAssignmentState {
 export const useUserAssignmentStore = create<UserAssignmentState>()(
   devtools(
     persist(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (set, get) => ({
+      (set) => ({
         assignments: [],
         isLoading: false,
         error: null,

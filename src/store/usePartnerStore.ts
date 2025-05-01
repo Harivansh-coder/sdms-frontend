@@ -25,7 +25,7 @@ export const usePartnerStore = create<PartnerState>()(
   devtools(
     persist(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (set, get) => ({
+      (set) => ({
         partners: [],
         isLoading: false,
         error: null,

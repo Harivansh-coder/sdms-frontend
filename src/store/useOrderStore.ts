@@ -22,8 +22,7 @@ interface OrderState {
 export const useOrderStore = create<OrderState>()(
   devtools(
     persist(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (set, get) => ({
+      (set) => ({
         orders: [],
         isLoading: false,
         error: null,
