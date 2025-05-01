@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Filter, Calendar, UserPlus } from "lucide-react";
+import { Search, UserPlus, Plus, Eye, Edit, Trash } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,30 +20,42 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/status-badge";
 import { TableSkeleton } from "@/components/ui/skeleton";
-import { mockOrders } from "@/utils/mock_data";
+import { useOrderStore } from "@/store/useOrderStore";
+import { OrderFormModal } from "@/components/modals/orderFormModal";
+import { AssignPartnerModal } from "@/components/modals/assignPartnerModal";
+import { DeleteConfirmationModal } from "@/components/modals/deleteConfirmModal";
 import type { Order } from "@/utils/types";
 
 export default function OrdersPage() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const {
+    orders,
+    fetchOrders,
+    deleteOrder,
+    isLoading,
+    setSelectedOrder,
+    selectedOrder,
+  } = useOrderStore();
+
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [areaFilter, setAreaFilter] = useState("all");
 
+  // Modal states
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const [formModalMode, setFormModalMode] = useState<"add" | "edit" | "view">(
+    "add"
+  );
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+
   // Get unique areas from orders
-  const areas = [...new Set(mockOrders.map((order) => order.area))];
+  const areas = [...new Set(orders.map((order) => order.area))];
 
   useEffect(() => {
-    // Simulate API loading
-    const timer = setTimeout(() => {
-      setOrders(mockOrders);
-      setFilteredOrders(mockOrders);
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
+    fetchOrders();
+  }, [fetchOrders]);
 
   useEffect(() => {
     // Filter orders based on search query, status filter, and area filter
@@ -71,6 +83,41 @@ export default function OrdersPage() {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString();
+  };
+
+  const handleAddOrder = () => {
+    setSelectedOrder(null);
+    setFormModalMode("add");
+    setFormModalOpen(true);
+  };
+
+  const handleEditOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setFormModalMode("edit");
+    setFormModalOpen(true);
+  };
+
+  const handleViewOrder = (order: Order) => {
+    setSelectedOrder(order);
+    setFormModalMode("view");
+    setFormModalOpen(true);
+  };
+
+  const handleAssignPartner = (order: Order) => {
+    setSelectedOrder(order);
+    setAssignModalOpen(true);
+  };
+
+  const handleDeleteClick = (order: Order) => {
+    setOrderToDelete(order);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (orderToDelete) {
+      await deleteOrder(orderToDelete.id);
+      setDeleteModalOpen(false);
+    }
   };
 
   if (isLoading) {
@@ -128,14 +175,14 @@ export default function OrdersPage() {
                 </SelectContent>
               </Select>
 
-              <Button variant="outline">
+              {/* <Button variant="outline">
                 <Calendar className="mr-2 h-4 w-4" />
                 Date
-              </Button>
+              </Button> */}
 
-              <Button>
-                <Filter className="mr-2 h-4 w-4" />
-                More Filters
+              <Button onClick={handleAddOrder}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Order
               </Button>
             </div>
           </div>
@@ -169,24 +216,51 @@ export default function OrdersPage() {
                       <TableCell>
                         <div>{order.customerName}</div>
                         <div className="text-xs text-muted-foreground truncate max-w-[200px]">
-                          {order.customerAddress}
+                          {order.customerAddr}
                         </div>
                       </TableCell>
                       <TableCell>{order.area}</TableCell>
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>
-                      <TableCell>{formatDate(order.scheduledTime)}</TableCell>
+                      <TableCell>{formatDate(order.scheduledFor)}</TableCell>
                       <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={order.status !== "pending"}
-                        >
-                          <UserPlus className="mr-2 h-3 w-3" />
-                          Assign
-                        </Button>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleViewOrder(order)}
+                          >
+                            <Eye className="h-4 w-4" />
+                            <span className="sr-only">View</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditOrder(order)}
+                          >
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteClick(order)}
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={order.status !== "pending"}
+                            onClick={() => handleAssignPartner(order)}
+                          >
+                            <UserPlus className="mr-2 h-3 w-3" />
+                            Assign
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -196,6 +270,28 @@ export default function OrdersPage() {
           </div>
         </CardContent>
       </Card>
+
+      <OrderFormModal
+        open={formModalOpen}
+        onOpenChange={setFormModalOpen}
+        order={selectedOrder}
+        mode={formModalMode}
+      />
+
+      <AssignPartnerModal
+        open={assignModalOpen}
+        onOpenChange={setAssignModalOpen}
+        order={selectedOrder}
+      />
+
+      <DeleteConfirmationModal
+        open={deleteModalOpen}
+        onOpenChange={setDeleteModalOpen}
+        onConfirm={confirmDelete}
+        title="Delete Order"
+        description={`Are you sure you want to delete order #${orderToDelete?.orderNumber}? This action cannot be undone.`}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

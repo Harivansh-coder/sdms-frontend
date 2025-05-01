@@ -13,7 +13,7 @@ type StatusType =
   | "IN_PROGRESS";
 
 interface StatusBadgeProps {
-  status: StatusType;
+  status: StatusType | string;
   className?: string;
 }
 
@@ -62,7 +62,10 @@ const statusConfig: Record<StatusType, { label: string; className: string }> = {
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = statusConfig[status] || statusConfig.INACTIVE;
+  const config = statusConfig[status as StatusType] || {
+    label: status,
+    className: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+  };
 
   return (
     <Badge

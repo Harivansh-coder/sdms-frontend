@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Users, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/metric-card";
@@ -13,20 +13,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  mockAssignments,
-  mockAssignmentMetrics,
-  mockPartnerAvailability,
-} from "@/utils/mock_data";
-import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { useMetricsStore } from "@/store/useMetricStore";
+import { mockOrders } from "@/utils/mock_data";
 
 export default function AssignmentsPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    assignmentTrends,
+    assignmentMetrics,
+    partnerAvailability,
+    fetchMetrics,
+    isLoading,
+  } = useMetricsStore();
 
   const ChartConfig = {
     desktop: {
@@ -40,13 +43,8 @@ export default function AssignmentsPage() {
   } satisfies ChartConfig;
 
   useEffect(() => {
-    // Simulate API loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
+    fetchMetrics();
+  }, [fetchMetrics]);
 
   if (isLoading) {
     return (
@@ -76,42 +74,50 @@ export default function AssignmentsPage() {
   }
 
   // Format data for charts
-  const failureData = mockAssignmentMetrics.failureReasons.map((item) => ({
-    name: item.reason,
-    value: item.count,
+  const failureData = assignmentMetrics.failureReasons.map((reason) => ({
+    name: reason,
+    value: assignmentMetrics.failureReasons.filter((r) => r === reason).length,
   }));
 
-  // Line chart data for assignment trends (mock data)
-  const assignmentTrends = [
-    { name: "Mon", assignments: 24 },
-    { name: "Tue", assignments: 32 },
-    { name: "Wed", assignments: 28 },
-    { name: "Thu", assignments: 36 },
-    { name: "Fri", assignments: 42 },
-    { name: "Sat", assignments: 38 },
-    { name: "Sun", assignments: 30 },
-  ];
+  // Get assigned orders
+  const assignedOrders = mockOrders
+    .filter(
+      (order) =>
+        order.partnerId &&
+        (order.status === "IN_PROGRESS" || order.status === "PENDING")
+    )
+    .map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      partnerId: order.partnerId,
+      partnerName: "Assigned Partner", // This would come from a join in a real API
+      status: order.status,
+      assignedTime: order.scheduledFor,
+      estimatedDeliveryTime: new Date(
+        new Date(order.scheduledFor).getTime() + 45 * 60000
+      ).toISOString(),
+    }));
 
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <MetricCard
           title="Available Partners"
-          value={mockPartnerAvailability.available}
+          value={partnerAvailability.available}
           icon={<Users className="h-4 w-4" />}
           description="Partners ready for assignment"
           className="border-l-4 border-l-green-500"
         />
         <MetricCard
           title="Busy Partners"
-          value={mockPartnerAvailability.busy}
+          value={partnerAvailability.busy}
           icon={<Clock className="h-4 w-4" />}
           description="Partners currently on delivery"
           className="border-l-4 border-l-orange-500"
         />
         <MetricCard
           title="Offline Partners"
-          value={mockPartnerAvailability.offline}
+          value={partnerAvailability.offline}
           icon={<Users className="h-4 w-4" />}
           description="Partners not available"
           className="border-l-4 border-l-gray-500"
@@ -127,7 +133,7 @@ export default function AssignmentsPage() {
             <div className="mb-6 grid grid-cols-3 gap-4 text-center">
               <div className="rounded-lg border p-3">
                 <div className="text-2xl font-bold">
-                  {mockAssignmentMetrics.totalAssigned}
+                  {assignmentMetrics.totalAssigned}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
                   Total Assigned
@@ -135,7 +141,7 @@ export default function AssignmentsPage() {
               </div>
               <div className="rounded-lg border p-3">
                 <div className="text-2xl font-bold text-green-500">
-                  {mockAssignmentMetrics.successRate}%
+                  {assignmentMetrics.successRate}%
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
                   Success Rate
@@ -143,7 +149,7 @@ export default function AssignmentsPage() {
               </div>
               <div className="rounded-lg border p-3">
                 <div className="text-2xl font-bold">
-                  {mockAssignmentMetrics.averageDeliveryTime}
+                  {assignmentMetrics.averageDeliveryTime}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
                   Avg. Delivery Time
@@ -238,25 +244,33 @@ export default function AssignmentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockAssignments.map((assignment) => (
-                <TableRow key={assignment.id}>
-                  <TableCell className="font-medium">
-                    {assignment.orderNumber}
-                  </TableCell>
-                  <TableCell>{assignment.partnerName}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={assignment.status} />
-                  </TableCell>
-                  <TableCell>
-                    {new Date(assignment.assignedTime).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(
-                      assignment.estimatedDeliveryTime
-                    ).toLocaleString()}
+              {assignedOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    No active assignments found.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                assignedOrders.map((assignment) => (
+                  <TableRow key={assignment.id}>
+                    <TableCell className="font-medium">
+                      {assignment.orderNumber}
+                    </TableCell>
+                    <TableCell>{assignment.partnerName}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={assignment.status} />
+                    </TableCell>
+                    <TableCell>
+                      {new Date(assignment.assignedTime).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(
+                        assignment.estimatedDeliveryTime
+                      ).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

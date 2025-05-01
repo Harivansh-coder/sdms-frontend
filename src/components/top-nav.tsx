@@ -9,9 +9,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSidebar } from "@/components/sidebar";
+import { useState } from "react";
 
 export function TopNav() {
   const { toggleSidebar } = useSidebar();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center border-b bg-background px-4 shadow-sm md:px-6 lg:px-8">
@@ -49,14 +52,16 @@ export function TopNav() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setProfileModalOpen(true)}>
+              Profile
+            </DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                // clear local storage and redirect to login page
                 localStorage.removeItem("token");
-                window.location.href = "/login";
+                // Clear user data from local storage
+                window.location.href = "/login"; // Redirect to login page
               }}
             >
               Logout

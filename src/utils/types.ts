@@ -3,9 +3,9 @@ export type DeliveryPartner = {
   name: string;
   email: string;
   phone: string;
-  status: "ACTIVE" | "INACTIVE";
+  status: string;
   rating: number;
-  areas: string;
+  areas: string[];
   shiftStart: string;
   shiftEnd: string;
   totalDeliveries: number;
@@ -16,12 +16,13 @@ export type Order = {
   id: string;
   orderNumber: string;
   customerName: string;
-  customerAddress: string;
+  customerAddr: string;
+  customerPhone: string;
   area: string;
-  status: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "CANCELLED" | "COMPLETED";
-  scheduledTime: string;
+  status: string;
+  scheduledFor: string;
   totalAmount: number;
-  items: number;
+  items?: string[];
   partnerId?: string;
 };
 

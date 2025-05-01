@@ -1,43 +1,41 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Users, Package, CheckCircle, MapPin, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/metric-card";
 import { StatusBadge } from "@/components/status-badge";
 import { CardSkeleton } from "@/components/ui/skeleton";
-import {
-  // mockPartners,
-  // orders,
-  // assignments,
-  mockPartnerAvailability,
-} from "@/utils/mock_data";
-import { assignmentApi, orderApi, partnerApi } from "@/utils/api";
-import { Assignment, Order, Partner } from "@/utils/types";
+import { useMetricsStore } from "@/store/useMetricStore";
+import { useOrderStore } from "@/store/useOrderStore";
 
 export default function Dashboard() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [partners, setPartners] = useState<Partner[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const { fetchMetrics, dashboardMetrics, partnerAvailability, isLoading } =
+    useMetricsStore();
+
+  const { orders, fetchOrders } = useOrderStore();
+
+  // Recent activity - get the most recent orders
+  const recentActivity = useMemo(() => {
+    return orders
+      .filter((order) => order.status === "IN_PROGRESS")
+      .sort(
+        (a, b) =>
+          new Date(b.scheduledFor).getTime() -
+          new Date(a.scheduledFor).getTime()
+      )
+      .slice(0, 5)
+      .map((order) => ({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        partnerName: "Assigned Partner", // placeholder
+        assignedTime: order.scheduledFor,
+      }));
+  }, [orders]);
 
   useEffect(() => {
-    Promise.all([
-      partnerApi.getAllPartners(),
-      orderApi.getAllOrders(),
-      assignmentApi.getAllAssignments(),
-    ])
-      .then(([partnersResponse, ordersResponse, assignmentsResponse]) => {
-        setPartners(partnersResponse);
-        setOrders(ordersResponse);
-        setAssignments(assignmentsResponse.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-    setIsLoading(false);
-  }, []);
+    fetchMetrics();
+    fetchOrders();
+  }, [fetchMetrics, fetchOrders]);
 
   if (isLoading) {
     return (
@@ -63,52 +61,33 @@ export default function Dashboard() {
     );
   }
 
-  // Calculate metrics
-  const totalPartners = partners.length;
-  const totalOrders = orders.length;
-  const pendingOrders = orders.filter(
-    (order) => order.status === "PENDING"
-  ).length;
-  const completedOrders = orders.filter(
-    (order) => order.status === "COMPLETED"
-  ).length;
-  const successRate = Math.round((completedOrders / totalOrders) * 100);
-
-  // Recent activity
-  const recentActivity = assignments
-    .sort(
-      (a, b) =>
-        new Date(b.assignedTime).getTime() - new Date(a.assignedTime).getTime()
-    )
-    .slice(0, 5);
-
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Total Partners"
-          value={totalPartners}
+          value={dashboardMetrics?.totalPartners || 0}
           icon={<Users className="h-4 w-4" />}
           description="Active delivery partners"
           trend={{ value: 12, isPositive: true }}
         />
         <MetricCard
           title="Orders Today"
-          value={totalOrders}
+          value={dashboardMetrics.totalOrders}
           icon={<Package className="h-4 w-4" />}
           description="Total orders received today"
           trend={{ value: 8, isPositive: true }}
         />
         <MetricCard
           title="Success Rate"
-          value={`${successRate}%`}
+          value={`${dashboardMetrics.successRate}%`}
           icon={<CheckCircle className="h-4 w-4" />}
           description="Order completion rate"
           trend={{ value: 3, isPositive: true }}
         />
         <MetricCard
           title="Pending Orders"
-          value={pendingOrders}
+          value={dashboardMetrics.pendingOrders}
           icon={<Clock className="h-4 w-4" />}
           description="Orders awaiting assignment"
           trend={{ value: 2, isPositive: false }}
@@ -138,24 +117,24 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-4">
               <div className="rounded-lg border p-3 text-center">
                 <div className="text-2xl font-bold text-green-500">
-                  {mockPartnerAvailability.available}
+                  {partnerAvailability.available}
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Available
-                </div>
+                <div className="mt-1 text-xs text-muted-foreground">Active</div>
               </div>
               <div className="rounded-lg border p-3 text-center">
                 <div className="text-2xl font-bold text-orange-500">
-                  {mockPartnerAvailability.busy}
+                  {partnerAvailability.busy}
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">Busy</div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  Inactive
+                </div>
               </div>
               <div className="rounded-lg border p-3 text-center">
                 <div className="text-2xl font-bold text-gray-500">
-                  {mockPartnerAvailability.offline}
+                  {partnerAvailability.offline}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  Offline
+                  Suspended
                 </div>
               </div>
             </div>
