@@ -141,17 +141,17 @@ export const useOrderStore = create<OrderState>()(
         assignPartner: async (orderId, partnerId) => {
           set({ isLoading: true, error: null });
           try {
-            const response = await fetch(
-              `${BASE_URL}/orders/${orderId}/assign`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-                body: JSON.stringify({ partnerId }),
-              }
-            );
+            const response = await fetch(`${BASE_URL}/assignments/run`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+              body: JSON.stringify({
+                orderId,
+                partnerId,
+              }),
+            });
             if (!response.ok)
               throw new Error("Failed to assign partner to order");
             const updatedOrder = await response.json();

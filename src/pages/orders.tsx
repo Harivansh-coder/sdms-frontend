@@ -224,7 +224,7 @@ export default function OrdersPage() {
                         <StatusBadge status={order.status} />
                       </TableCell>
                       <TableCell>{formatDate(order.scheduledFor)}</TableCell>
-                      <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                      <TableCell>${order.totalAmount}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
@@ -254,7 +254,6 @@ export default function OrdersPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            disabled={order.status !== "pending"}
                             onClick={() => handleAssignPartner(order)}
                           >
                             <UserPlus className="mr-2 h-3 w-3" />

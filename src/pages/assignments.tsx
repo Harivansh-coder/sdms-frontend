@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import { useMetricsStore } from "@/store/useMetricStore";
-import { mockOrders } from "@/utils/mock_data";
+import { useOrderStore } from "@/store/useOrderStore";
 
 export default function AssignmentsPage() {
   const {
@@ -30,6 +30,8 @@ export default function AssignmentsPage() {
     fetchMetrics,
     isLoading,
   } = useMetricsStore();
+
+  const { orders, fetchOrders } = useOrderStore();
 
   const ChartConfig = {
     desktop: {
@@ -44,7 +46,8 @@ export default function AssignmentsPage() {
 
   useEffect(() => {
     fetchMetrics();
-  }, [fetchMetrics]);
+    fetchOrders();
+  }, [fetchMetrics, fetchOrders]);
 
   if (isLoading) {
     return (
@@ -80,16 +83,16 @@ export default function AssignmentsPage() {
   }));
 
   // Get assigned orders
-  const assignedOrders = mockOrders
+  const assignedOrders = orders
     .filter(
       (order) =>
-        order.partnerId &&
+        order.assignedTo &&
         (order.status === "IN_PROGRESS" || order.status === "PENDING")
     )
     .map((order) => ({
       id: order.id,
       orderNumber: order.orderNumber,
-      partnerId: order.partnerId,
+      partnerId: order.assignedTo,
       partnerName: "Assigned Partner", // This would come from a join in a real API
       status: order.status,
       assignedTime: order.scheduledFor,

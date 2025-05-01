@@ -55,7 +55,18 @@ export function PartnerFormModal({
 
   useEffect(() => {
     if (partner && (mode === "edit" || mode === "view")) {
-      setFormData(partner);
+      const shiftStartTime = new Date(partner.shiftStart)
+        .toISOString()
+        .substring(11, 16); // HH:MM
+      const shiftEndTime = new Date(partner.shiftEnd)
+        .toISOString()
+        .substring(11, 16);
+
+      setFormData({
+        ...partner,
+        shiftStart: shiftStartTime,
+        shiftEnd: shiftEndTime,
+      });
     } else {
       setFormData(defaultPartner);
     }
@@ -78,28 +89,35 @@ export function PartnerFormModal({
     e.preventDefault();
 
     try {
+      // Create ISO string using a fixed reference date
+      const shiftStartISO = new Date(
+        `1970-01-01T${formData.shiftStart}:00Z`
+      ).toISOString();
+      const shiftEndISO = new Date(
+        `1970-01-01T${formData.shiftEnd}:00Z`
+      ).toISOString();
+
       const newFormData = {
         ...formData,
-        shiftStart: new Date(
-          `1970-01-01T${formData.shiftStart}:00`
-        ).toISOString(),
-        shiftEnd: new Date(`1970-01-01T${formData.shiftEnd}:00`).toISOString(),
+        shiftStart: shiftStartISO,
+        shiftEnd: shiftEndISO,
       };
+
       if (mode === "add") {
         await addPartner(newFormData);
         toast("Partner added", {
           description: "New delivery partner has been added successfully.",
         });
       } else if (mode === "edit" && partner) {
-        await updatePartner(partner.id, formData);
+        await updatePartner(partner.id, newFormData);
         toast("Partner updated", {
           description: "Delivery partner has been updated successfully.",
         });
       }
+
       onOpenChange(false);
     } catch (error) {
       console.error("Error:", error);
-
       toast(
         mode === "add" ? "Failed to add partner" : "Failed to update partner",
         {

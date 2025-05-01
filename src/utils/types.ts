@@ -23,7 +23,7 @@ export type Order = {
   scheduledFor: string;
   totalAmount: number;
   items?: string[];
-  partnerId?: string;
+  assignedTo?: string;
 };
 
 export type Assignment = {

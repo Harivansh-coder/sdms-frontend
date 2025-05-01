@@ -39,22 +39,20 @@ export function AssignPartnerModal({
 
   useEffect(() => {
     if (open) {
+      console.log("Modal opened, fetching partners...");
       fetchPartners();
     }
   }, [open, fetchPartners]);
 
   useEffect(() => {
-    // Filter partners by availability and area match if possible
     const filtered = partners.filter(
       (partner) =>
         partner.status === "ACTIVE" &&
         (!order?.area || partner.areas.includes(order.area)) &&
-        (!order?.partnerId || partner.id !== order.partnerId)
+        (!order?.assignedTo || partner.id !== order.assignedTo)
     );
 
     setAvailablePartners(filtered);
-
-    // Reset selection when modal opens
     setSelectedPartnerId("");
   }, [partners, order, open]);
 
@@ -114,7 +112,9 @@ export function AssignPartnerModal({
                   </div>
                   <div>
                     <span className="text-muted-foreground">Items:</span>{" "}
-                    {order.items}
+                    {Array.isArray(order.items)
+                      ? order.items.join(", ")
+                      : String(order.items)}
                   </div>
                 </div>
               </div>
@@ -147,7 +147,9 @@ export function AssignPartnerModal({
                             <div>
                               <div className="font-medium">{partner.name}</div>
                               <div className="text-xs text-muted-foreground">
-                                {partner.areas}
+                                {Array.isArray(partner.areas)
+                                  ? partner.areas.join(", ")
+                                  : partner.areas}
                               </div>
                             </div>
                             <div className="text-right">

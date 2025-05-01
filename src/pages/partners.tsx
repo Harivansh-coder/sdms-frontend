@@ -226,16 +226,21 @@ export default function PartnersPage() {
                       </TableCell>
                       <TableCell>{partner.areas}</TableCell>
                       <TableCell>
-                        {new Date(partner.shiftEnd).getHours() -
-                          new Date(partner.shiftStart).getHours() <
-                        0
-                          ? 24 +
-                            (new Date(partner.shiftEnd).getHours() -
-                              new Date(partner.shiftStart).getHours())
-                          : new Date(partner.shiftEnd).getHours() -
-                            new Date(partner.shiftStart).getHours()}{" "}
-                        hours
+                        {(() => {
+                          const start = new Date(partner.shiftStart);
+                          const end = new Date(partner.shiftEnd);
+
+                          const diffMs = end.getTime() - start.getTime();
+                          const diffHours =
+                            diffMs < 0
+                              ? (24 * 60 * 60 * 1000 + diffMs) /
+                                (1000 * 60 * 60)
+                              : diffMs / (1000 * 60 * 60);
+
+                          return `${diffHours.toFixed(1)} hours`;
+                        })()}
                       </TableCell>
+
                       <TableCell>
                         <div className="flex items-center">
                           <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
