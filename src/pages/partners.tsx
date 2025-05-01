@@ -53,7 +53,7 @@ export default function PartnersPage() {
         (partner) =>
           partner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           partner.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          partner.area.toLowerCase().includes(searchQuery.toLowerCase())
+          partner.areas.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -163,7 +163,7 @@ export default function PartnersPage() {
                       <TableCell>
                         <StatusBadge status={partner.status} />
                       </TableCell>
-                      <TableCell>{partner.area}</TableCell>
+                      <TableCell>{partner.areas}</TableCell>
                       <TableCell>
                         {partner.shiftStart} - {partner.shiftEnd}
                       </TableCell>

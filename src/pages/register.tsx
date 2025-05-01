@@ -1,7 +1,7 @@
 import type React from "react";
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
+import { authApi } from "@/utils/api";
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -43,22 +45,15 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // This would be replaced with your actual API call
-      // const response = await fetch('API_URL/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // })
+      const response = await authApi.signup(formData);
+      localStorage.setItem("token", response.data.access_token);
 
       toast("Registration successful", {
-        description: "Your account has been created. Please sign in.",
+        description: "Your account has been created.",
       });
 
       // Redirect to login after successful registration
-      // router.push('/auth/login')
+      navigate("/");
     } catch (error) {
       console.error("Registration error:", error);
       toast("Registration failed", {

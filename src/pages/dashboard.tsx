@@ -5,22 +5,38 @@ import { MetricCard } from "@/components/metric-card";
 import { StatusBadge } from "@/components/status-badge";
 import { CardSkeleton } from "@/components/ui/skeleton";
 import {
-  mockPartners,
-  mockOrders,
-  mockAssignments,
+  // mockPartners,
+  // orders,
+  // assignments,
   mockPartnerAvailability,
 } from "@/utils/mock_data";
+import { assignmentApi, orderApi, partnerApi } from "@/utils/api";
+import { Assignment, Order, Partner } from "@/utils/types";
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
 
   useEffect(() => {
-    // Simulate API loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
+    Promise.all([
+      partnerApi.getAllPartners(),
+      orderApi.getAllOrders(),
+      assignmentApi.getAllAssignments(),
+    ])
+      .then(([partnersResponse, ordersResponse, assignmentsResponse]) => {
+        setPartners(partnersResponse);
+        setOrders(ordersResponse);
+        setAssignments(assignmentsResponse.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+    setIsLoading(false);
   }, []);
 
   if (isLoading) {
@@ -48,18 +64,18 @@ export default function Dashboard() {
   }
 
   // Calculate metrics
-  const totalPartners = mockPartners.length;
-  const totalOrders = mockOrders.length;
-  const pendingOrders = mockOrders.filter(
-    (order) => order.status === "pending"
+  const totalPartners = partners.length;
+  const totalOrders = orders.length;
+  const pendingOrders = orders.filter(
+    (order) => order.status === "PENDING"
   ).length;
-  const completedOrders = mockOrders.filter(
-    (order) => order.status === "completed"
+  const completedOrders = orders.filter(
+    (order) => order.status === "COMPLETED"
   ).length;
   const successRate = Math.round((completedOrders / totalOrders) * 100);
 
   // Recent activity
-  const recentActivity = mockAssignments
+  const recentActivity = assignments
     .sort(
       (a, b) =>
         new Date(b.assignedTime).getTime() - new Date(a.assignedTime).getTime()

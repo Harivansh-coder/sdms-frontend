@@ -163,7 +163,15 @@ export function Sidebar() {
           ))}
         </nav>
         <div className="mt-auto p-4">
-          <Button variant="outline" className="w-full justify-start gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              // clear access token and redirect to login page
+              localStorage.removeItem("token");
+              window.location.href = "/login";
+            }}
+            className="w-full justify-start gap-2"
+          >
             <LogOut className="h-4 w-4" />
             Logout
           </Button>

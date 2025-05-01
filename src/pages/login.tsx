@@ -1,7 +1,7 @@
 import type React from "react";
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
+import { authApi } from "@/utils/api";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +23,8 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,22 +36,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // This would be replaced with your actual API call
-      // const response = await fetch('API_URL/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // })
+      // Redirect to dashboard after successful login
+      const response = await authApi.signin(formData);
+      localStorage.setItem("token", response.data.access_token);
 
       toast("Login successful", {
         description: "Redirecting to dashboard...",
       });
 
-      // Redirect to dashboard after successful login
-      // router.push('/')
+      navigate("/", { replace: true });
     } catch (error) {
       console.error("Login error:", error);
       toast("Login failed", {

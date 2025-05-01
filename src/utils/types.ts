@@ -3,9 +3,9 @@ export type DeliveryPartner = {
   name: string;
   email: string;
   phone: string;
-  status: "available" | "busy" | "offline";
+  status: "ACTIVE" | "INACTIVE";
   rating: number;
-  area: string;
+  areas: string;
   shiftStart: string;
   shiftEnd: string;
   totalDeliveries: number;
@@ -18,7 +18,7 @@ export type Order = {
   customerName: string;
   customerAddress: string;
   area: string;
-  status: "pending" | "in-progress" | "completed" | "failed";
+  status: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "CANCELLED" | "COMPLETED";
   scheduledTime: string;
   totalAmount: number;
   items: number;
@@ -31,7 +31,7 @@ export type Assignment = {
   orderNumber: string;
   partnerId: string;
   partnerName: string;
-  status: "pending" | "in-progress" | "completed" | "failed";
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
   assignedTime: string;
   estimatedDeliveryTime: string;
   actualDeliveryTime?: string;
@@ -73,4 +73,40 @@ export type AssignmentPageProps = {
     busy: number;
     offline: number;
   };
+};
+
+export type AuthResponse = {
+  status: string;
+  message: string;
+  data: {
+    access_token: string;
+  };
+};
+
+export type Partner = {
+  id?: string;
+  name: string;
+  email: string;
+  phone: string;
+  areas: string[];
+  shiftStart: string;
+  shiftEnd: string;
+};
+
+export type AssignmentRequest = {
+  id?: string;
+  orderId: string;
+  partnerId: string;
+};
+
+export type OrderRequest = {
+  id?: string;
+  orderNumber: string;
+  customerName: string;
+  customerAddress: string;
+  customerPhone: string;
+  area: string;
+  status: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "CANCELLED" | "COMPLETED";
+  scheduledFor: string;
+  totalAmount: number;
 };
